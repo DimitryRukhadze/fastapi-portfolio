@@ -1,7 +1,8 @@
-goals.csv
+goals.xlsx
 *.log
 temp/
 .DS_Store
 .vscode/
 .idea/
 .env
+__pycache__/
