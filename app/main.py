@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 
 from time import sleep
+from .schemas import TestResponseSchema
+from .test_logic import generate_answer
 
 
 app = FastAPI()
@@ -11,12 +13,13 @@ async def emulate_async_operation(id, inc_str) -> str:
     return {"item_id": id, "q": inc_str}
 
 
-@app.get("/")
+@app.get("/", response_model=TestResponseSchema)
 def read_root():
-    return  {"Hello": "World"}
+    return generate_answer()
 
 
 @app.get("/items/{item_id}")
 async def read_item(item_id: int, q: str = None):
     complete = await emulate_async_operation(item_id, q)
     return complete
+
