@@ -2,7 +2,7 @@ from fastapi import FastAPI
 
 from time import sleep
 from .schemas import TestResponseSchema
-from .test_logic import generate_answer
+from .services import generate_answer
 
 
 app = FastAPI()

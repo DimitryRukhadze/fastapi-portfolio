@@ -13,5 +13,4 @@ ENV PATH="/home/appuser/.local/bin:${PATH}"
 
 EXPOSE 5435
 
-
-CMD ["python", "serve.py"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0","--port", "5435", "--log-level", "info"]
