@@ -1,12 +1,25 @@
-from sqlalchemy import create_engine, text
+from pydantic import UUID5
 
-from settings import Settings
+from sqlalchemy import String, create_engine, text
+from sqlalchemy.orm import Session, DeclarativeBase, Mapped, mapped_column
+
+from .settings import Settings
 
 settings = Settings()
-db_settings = settings.db
+DB_SETTINGS = settings.db
+DB_URL = f'{DB_SETTINGS.engine}://{DB_SETTINGS.username}:{DB_SETTINGS.password}@{DB_SETTINGS.host}:{DB_SETTINGS.port}/{DB_SETTINGS.name}'
 
-engine = create_engine(f'{db_settings.engine}://{db_settings.username}:{db_settings.password}@{db_settings.host}:{db_settings.port}/{db_settings.name}', echo=True)
 
-with engine.connect() as connection:
-    result = connection.execute(text("SELECT 'Hello, World!'"))
-    print(result.all())
+class DbBase(DeclarativeBase):
+    pass
+
+
+class User(DbBase):
+    __tablename__ = 'user'
+
+    id: Mapped[UUID5] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(String(30))
+    email: Mapped[str]
+    
+
+engine = create_engine(DB_URL, echo=True)
