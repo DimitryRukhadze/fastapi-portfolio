@@ -1,4 +1,4 @@
-from pydantic import UUID5
+import uuid
 
 from sqlalchemy import String, create_engine, text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
@@ -18,6 +18,6 @@ class DbBase(DeclarativeBase):
 class User(DbBase):
     __tablename__ = 'user'
 
-    id: Mapped[UUID5] = mapped_column(primary_key=True)
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, server_default=text("gen_random_uuid()"))
     username: Mapped[str] = mapped_column(String(30))
     email: Mapped[str]

@@ -4,7 +4,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from time import sleep
-from .schemas import TestResponseSchema
+from .schemas import TestResponseSchema, UserSchema
 from .services import generate_answer
 from .db import ENGINE
 
@@ -27,9 +27,20 @@ def db_health_check():
     with Session(ENGINE) as session:
         version = session.execute(text('SELECT version()')).fetchone()
         return {"status": "healthy"}
+    
+@app.get("/users", response_model=list[UserSchema])
+def get_users():
+    with Session(ENGINE) as session:
+        result = session.execute(text('SELECT id, username, email FROM "user"')).all()
+        users = [UserSchema(id=row.id, username=row.username, email=row.email) for row in result]
+        return users
 
-@app.get("/items/{item_id}")
-async def read_item(item_id: int, q: str = None):
-    complete = await emulate_async_operation(item_id, q)
-    return complete
-
+@app.post("/users", response_model=UserSchema)
+def create_user(user: UserSchema):
+    with Session(ENGINE) as session:
+        result = session.execute(
+            text('INSERT INTO "user" (username, email) VALUES (:name, :email) RETURNING "user".id, username, email'),
+            {"id": user.id, "name": user.name, "email": user.email}
+        )
+        user = result.fetchone()
+        return UserSchema(id=user.id, name=user.username, email=user.email)
