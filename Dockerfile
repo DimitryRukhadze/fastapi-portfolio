@@ -1,15 +1,23 @@
+FROM python:3.12-slim as builder
+
+RUN pip install --no-cache-dir poetry
+WORKDIR /home/appuser/app
+
+COPY pyproject.toml poetry.lock ./
+
+RUN poetry config virtualenvs.in-project true && poetry install --no-interaction --no-root --only main
+
+COPY . .
+
 FROM python:3.12-slim
-WORKDIR /usr/local/
-
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
 RUN useradd -m appuser
+WORKDIR /home/appuser/app
 
-COPY --chown=appuser:appuser . .
+COPY --from=builder --chown=appuser:appuser /home/appuser/app/ /home/appuser/app/
+
+ENV PATH="/home/appuser/app/.venv/bin:${PATH}"
+
 USER appuser
-
-ENV PATH="/home/appuser/.local/bin:${PATH}"
 
 EXPOSE 5435
 
