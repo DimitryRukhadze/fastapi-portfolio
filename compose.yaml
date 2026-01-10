@@ -1,0 +1,32 @@
+services:
+  backend:
+    build: .
+    env_file:
+      - .env
+    ports:
+      - "8080:5435"
+    networks:
+      - backend-network
+    depends_on:
+      - db-container
+    volumes:
+      - ./migrations:/usr/local/migrations
+  
+  db-container:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: ${DB__USERNAME}
+      POSTGRES_PASSWORD: ${DB__PASSWORD}
+      POSTGRES_DB: ${DB__NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/
+    networks:
+      - backend-network
+
+volumes:
+  db_data: {}
+
+networks:
+  backend-network: {}
