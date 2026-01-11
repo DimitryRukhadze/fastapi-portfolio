@@ -7,6 +7,7 @@ from time import sleep
 from .schemas import TestResponseSchema, UserSchema
 from .services import generate_answer
 from .db import ENGINE
+from .handlers import create_new_user
 
 
 app = FastAPI()
@@ -37,10 +38,4 @@ def get_users():
 
 @app.post("/users", response_model=UserSchema)
 def create_user(user: UserSchema):
-    with Session(ENGINE) as session:
-        result = session.execute(
-            text('INSERT INTO "user" (username, email) VALUES (:name, :email) RETURNING "user".id, username, email'),
-            {"id": user.id, "name": user.name, "email": user.email}
-        )
-        user = result.fetchone()
-        return UserSchema(id=user.id, name=user.username, email=user.email)
+    create_new_user(user.model_dump())
