@@ -6,11 +6,14 @@ from sqlalchemy.orm import Session
 from time import sleep
 from .schemas import TestResponseSchema, UserSchema
 from .services import generate_answer
-from .db import ENGINE
+from .db import init_db, get_db_session
 from .handlers import create_new_user
+from .settings import SETTINGS
 
 
 app = FastAPI()
+engine = init_db(SETTINGS.db.database_url)
+
 
 
 async def emulate_async_operation(id, inc_str) -> str:
@@ -24,18 +27,16 @@ def read_root():
 
 @app.get("/db_health")
 def db_health_check():
-    print(ENGINE)
-    with Session(ENGINE) as session:
+    with Session(engine) as session:
         version = session.execute(text('SELECT version()')).fetchone()
         return {"status": "healthy"}
     
 @app.get("/users", response_model=list[UserSchema])
-def get_users():
-    with Session(ENGINE) as session:
-        result = session.execute(text('SELECT id, username, email FROM "user"')).all()
-        users = [UserSchema(id=row.id, username=row.username, email=row.email) for row in result]
-        return users
+def get_users(session: Session = next(get_db_session())):
+    result = session.execute(text('SELECT id, username, email FROM "user"')).all()
+    users = [UserSchema(id=row.id, username=row.username, email=row.email) for row in result]
+    return users
 
 @app.post("/users", response_model=UserSchema)
 def create_user(user: UserSchema):
-    create_new_user(user.model_dump())
+    create_new_user(user.model_dump(), next(get_db_session()))

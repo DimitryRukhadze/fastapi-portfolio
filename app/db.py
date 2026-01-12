@@ -1,14 +1,7 @@
 import uuid
 
-from sqlalchemy import String, create_engine, text
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-
-from .settings import SETTINGS
-
-
-DB_SETTINGS = SETTINGS.db
-DB_URL = f'{DB_SETTINGS.engine}://{DB_SETTINGS.username}:{DB_SETTINGS.password}@{DB_SETTINGS.host}:{DB_SETTINGS.port}/{DB_SETTINGS.name}'
-ENGINE = create_engine(DB_URL, echo=True)
+from sqlalchemy import Engine, String, create_engine, text
+from sqlalchemy.orm import Session, DeclarativeBase, Mapped, mapped_column, sessionmaker
 
 
 class DbBase(DeclarativeBase):
@@ -21,3 +14,19 @@ class User(DbBase):
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, server_default=text("gen_random_uuid()"))
     username: Mapped[str] = mapped_column(String(30), unique=True, nullable=False)
     email: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False)
+
+
+def init_db(db_url: str) -> Engine:
+    engine = create_engine(db_url, future=True)
+    SessionLocal.configure(bind=engine)
+    return engine
+
+
+def get_db_session() -> Session:
+    session = SessionLocal()
+    try:
+        yield session
+    finally:
+        session.close()
