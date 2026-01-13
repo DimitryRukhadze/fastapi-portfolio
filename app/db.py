@@ -24,7 +24,7 @@ def init_db(db_url: str) -> Engine:
     return engine
 
 
-def get_db_session() -> Session:
+def get_db_session():
     session = SessionLocal()
     try:
         yield session

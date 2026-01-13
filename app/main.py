@@ -15,7 +15,6 @@ app = FastAPI()
 engine = init_db(SETTINGS.db.database_url)
 
 
-
 async def emulate_async_operation(id, inc_str) -> str:
     sleep(5)
     return {"item_id": id, "q": inc_str}
@@ -31,10 +30,12 @@ def db_health_check():
         version = session.execute(text('SELECT version()')).fetchone()
         return {"status": "healthy"}
     
-@app.get("/users", response_model=list[UserSchema])
-def get_users(session: Session = next(get_db_session())):
+@app.get("/users", response_model=list[UserSchema] | None)
+def get_users():
+    session = next(get_db_session())
     result = session.execute(text('SELECT id, username, email FROM "user"')).all()
-    users = [UserSchema(id=row.id, username=row.username, email=row.email) for row in result]
+    print(type(result[-1]))
+    users = [UserSchema(id=row.id, name=row.username, email=row.email) for row in result]
     return users
 
 @app.post("/users", response_model=UserSchema)
