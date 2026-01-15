@@ -29,3 +29,11 @@ def setup_test_database():
     test_engine.dispose()
     drop_database(test_db_url)
     print('Test database dropped.')
+
+@pytest.fixture(scope="function", autouse=True)
+def session_cleanup():
+    yield
+    session = next(get_db_session())
+    session.execute(text('TRUNCATE TABLE "user" RESTART IDENTITY CASCADE'))
+    session.commit()
+    session.close()

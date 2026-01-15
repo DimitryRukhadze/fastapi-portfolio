@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-
 from sqlalchemy import text
+from argon2.exceptions import VerifyMismatchError
 
 from .schemas import TestResponseSchema, UserSchema
 from .services import generate_answer
@@ -21,10 +21,15 @@ def read_root():
 def get_users():
     session = next(get_db_session())
     result = session.execute(text('SELECT id, username, email FROM "user"')).all()
-    print(type(result[-1]))
     users = [UserSchema(id=row.id, name=row.username, email=row.email) for row in result]
     return users
 
 @app.post("/users", response_model=UserSchema)
 def create_user(user: UserSchema):
-    create_new_user(user.model_dump(), next(get_db_session()))
+    try:
+        created_user = create_new_user(user.model_dump(), next(get_db_session()))
+    except VerifyMismatchError:
+        return {"message": "Password verification failed", "status": "error"}
+    except ValueError as ve:
+        return {"message": str(ve), "status": "error"}
+    return created_user
