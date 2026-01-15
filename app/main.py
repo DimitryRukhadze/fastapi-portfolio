@@ -1,9 +1,7 @@
 from fastapi import FastAPI
 
 from sqlalchemy import text
-from sqlalchemy.orm import Session
 
-from time import sleep
 from .schemas import TestResponseSchema, UserSchema
 from .services import generate_answer
 from .db import init_db, get_db_session

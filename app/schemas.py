@@ -13,3 +13,4 @@ class UserSchema(BaseModel):
     id: Optional[uuid.UUID] = None
     name: str
     email: str
+    password: Optional[str] = None
