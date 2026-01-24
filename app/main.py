@@ -1,11 +1,11 @@
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
-from sqlalchemy import text
+from sqlalchemy import text, select
 from argon2.exceptions import VerifyMismatchError
 
 from .schemas import TestResponseSchema, UserSchema
 from .services import generate_answer
-from .db import init_db, get_db_session
+from .db import init_db, get_db_session, User
 from .handlers import create_new_user
 from .settings import SETTINGS
 
@@ -20,7 +20,7 @@ def read_root():
     
 @app.get("/users", response_model=list[UserSchema] | None)
 def get_users(session: Session = Depends(get_db_session)):
-    result = session.execute(text('SELECT id, username, email FROM "user"')).all()
+    result = session.scalars(select(User)).all()
     users = [UserSchema(id=row.id, name=row.username, email=row.email) for row in result]
     return users
 
