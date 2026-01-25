@@ -4,7 +4,7 @@ import pytest
 from uuid import UUID
 
 from app.handlers import create_new_user
-from app.db import get_db_session
+from app.core.database import get_db_session
 
 
 class TestUserPOSTHandler:

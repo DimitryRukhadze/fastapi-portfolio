@@ -5,7 +5,7 @@ from sqlalchemy_utils import create_database, database_exists, drop_database
 from alembic import command
 from alembic.config import Config
 from app.settings import SETTINGS
-from app.db import init_db, get_db_session
+from app.core.database import init_db, get_db_session
 
 
 @pytest.fixture(scope="session", autouse=True)

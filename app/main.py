@@ -1,11 +1,12 @@
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
-from sqlalchemy import text, select
+from sqlalchemy import select
 from argon2.exceptions import VerifyMismatchError
 
 from .schemas import TestResponseSchema, UserSchema
 from .services import generate_answer
-from .db import init_db, get_db_session, User
+from .core.database import init_db, get_db_session
+from .db import User
 from .handlers import create_new_user
 from .settings import SETTINGS
 
