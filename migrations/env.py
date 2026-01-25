@@ -5,7 +5,7 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from app.db import DbBase
+from app.core.database import DbBase
 from app.settings import SETTINGS
 
 

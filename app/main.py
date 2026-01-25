@@ -3,12 +3,12 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 from argon2.exceptions import VerifyMismatchError
 
-from .schemas import TestResponseSchema, UserSchema
-from .services import generate_answer
-from .core.database import init_db, get_db_session
-from .db import User
-from .handlers import create_new_user
-from .settings import SETTINGS
+from app.services import generate_answer
+from app.modules.auth.schemas import TestResponseSchema, UserSchema
+from app.core.database import init_db, get_db_session
+from app.modules.auth.models import User
+from app.modules.auth.handlers import create_new_user
+from app.settings import SETTINGS
 
 
 app = FastAPI()

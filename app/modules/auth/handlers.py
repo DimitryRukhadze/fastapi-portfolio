@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from .schemas import UserSchema
 from .services import hash_password
 
+
 def create_new_user(request: dict, session: Session) -> dict:
     if not request.get("password", None):
         raise ValueError("Password required")

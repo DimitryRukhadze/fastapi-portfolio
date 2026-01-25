@@ -3,7 +3,7 @@ import pytest
 
 from uuid import UUID
 
-from app.handlers import create_new_user
+from app.modules.auth.handlers import create_new_user
 from app.core.database import get_db_session
 
 
