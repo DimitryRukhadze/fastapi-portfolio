@@ -1,19 +1,13 @@
-from sqlalchemy import text
 from sqlalchemy.orm import Session
-from .schemas import UserSchema
+from .models import User
+from .schemas import CreateUserSchema
 from .services import hash_password
 
 
-def create_new_user(request: dict, session: Session) -> dict:
-    if not request.get("password", None):
-        raise ValueError("Password required")
+def create_new_user(payload: CreateUserSchema, session: Session) -> User:
 
-    hashed_password = hash_password(request["password"])
-    result = session.execute(
-        text('INSERT INTO "user" (username, email, password) VALUES (:name, :email, :hashed_password) RETURNING "user".id, username, email'),
-        {"name": request["name"], "email": request["email"], "hashed_password": hashed_password},
-    )
+    new_user = User(username=payload.name, email=payload.email, password=hash_password(payload.password))
+    session.add(new_user)
     session.commit()
-    user = result.fetchone()
-    new_user_data = UserSchema(id=user.id, name=user.username, email=user.email).model_dump()
-    return new_user_data
+    session.refresh(new_user)
+    return new_user

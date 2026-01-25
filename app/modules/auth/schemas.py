@@ -1,11 +1,20 @@
 import uuid
 
-from pydantic import BaseModel
-from typing import Optional
+from pydantic import BaseModel, field_validator
 
 
 class UserSchema(BaseModel):
-    id: Optional[uuid.UUID] = None
     name: str
     email: str
-    password: Optional[str] = None
+
+class CreateUserSchema(UserSchema):
+    password: str
+
+    @field_validator("password")
+    def validate_password(cls, v):
+        if not v:
+            raise ValueError("Password required")
+        return v
+
+class UserOutputSchema(UserSchema):
+    id: uuid.UUID
